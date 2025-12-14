@@ -113,17 +113,11 @@ fn HashMap(comptime V: type) type {
         }
 
         fn resize_up(self: *Self) !void {
-            if (self.count * 100 / self.size > 70) {
-                try self.resize(self.size * 2);
-            }
+            try self.resize(self.size * 2);
         }
 
         fn resize_down(self: *Self) !void {
-            if (self.size > INITIAL_SIZE and
-                self.count * 100 / self.size < 10)
-            {
-                try self.resize(self.size / 2);
-            }
+            try self.resize(self.size / 2);
         }
 
         pub fn put(self: *Self, key: []const u8, value: V) !void {
@@ -190,7 +184,7 @@ fn HashMap(comptime V: type) type {
                         e.active = false;
                         self.count -= 1;
 
-                        if (load > 10) {
+                        if (load < 10) {
                             try self.resize_down();
                         }
 
