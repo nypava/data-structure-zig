@@ -50,10 +50,7 @@ fn HashMap(comptime V: type) type {
 
         const INITIAL_SIZE = 100;
 
-        pub fn init() !Self {
-            var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-            const allocator = gpa.allocator();
-
+        pub fn init(allocator: std.mem.Allocator) !Self {
             const table = try allocator.alloc(?Entry, INITIAL_SIZE);
             @memset(table, null);
 
@@ -202,9 +199,12 @@ fn HashMap(comptime V: type) type {
 }
 
 pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 
     const Map = HashMap([]const u8);
-    var map = try Map.init();
+    var map = try Map.init(gpa.allocator());
+    
+    defer map.deinit();
 
     try map.put("dh", "male");
     try map.put("zz", "female");
@@ -234,9 +234,12 @@ test "core test" {
 
     const key = "abe_fb";
     const value = Human {.name = "Abebe", .age = 12, .sex = 'M'};
+    
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 
     const Map = HashMap(Human);
-    var map = try Map.init();
+    var map = try Map.init(gpa.allocator());
+    defer map.deinit();
 
     try map.put(key, value);
 
